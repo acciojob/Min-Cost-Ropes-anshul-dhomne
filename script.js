@@ -1,72 +1,55 @@
-class MinHeap {
-    constructor() {
-        this.heap = [];
-    }
+function mincost(arr) {
+    // Helper functions for the min-heap
+    function heapify(arr, i, size) {
+        let smallest = i;
+        let left = 2 * i + 1;
+        let right = 2 * i + 2;
 
-    insert(val) {
-        this.heap.push(val);
-        this.bubbleUp();
-    }
+        if (left < size && arr[left] < arr[smallest]) smallest = left;
+        if (right < size && arr[right] < arr[smallest]) smallest = right;
 
-    bubbleUp() {
-        let index = this.heap.length - 1;
-        while (index > 0) {
-            let parentIndex = Math.floor((index - 1) / 2);
-            if (this.heap[parentIndex] <= this.heap[index]) break;
-            [this.heap[parentIndex], this.heap[index]] = [this.heap[index], this.heap[parentIndex]];
-            index = parentIndex;
+        if (smallest !== i) {
+            [arr[i], arr[smallest]] = [arr[smallest], arr[i]];
+            heapify(arr, smallest, size);
         }
     }
 
-    extractMin() {
-        if (this.heap.length === 1) return this.heap.pop();
-        const min = this.heap[0];
-        this.heap[0] = this.heap.pop();
-        this.sinkDown();
+    function buildMinHeap(arr) {
+        let n = arr.length;
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+            heapify(arr, i, n);
+        }
+    }
+
+    function extractMin(arr) {
+        const min = arr[0];
+        arr[0] = arr[arr.length - 1];
+        arr.pop();
+        heapify(arr, 0, arr.length);
         return min;
     }
 
-    sinkDown() {
-        let index = 0;
-        const length = this.heap.length;
-        const element = this.heap[0];
-
-        while (true) {
-            let left = 2 * index + 1;
-            let right = 2 * index + 2;
-            let smallest = index;
-
-            if (left < length && this.heap[left] < this.heap[smallest]) {
-                smallest = left;
-            }
-            if (right < length && this.heap[right] < this.heap[smallest]) {
-                smallest = right;
-            }
-            if (smallest === index) break;
-            [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
-            index = smallest;
+    function insertHeap(arr, value) {
+        arr.push(value);
+        let i = arr.length - 1;
+        while (i > 0) {
+            let parent = Math.floor((i - 1) / 2);
+            if (arr[parent] <= arr[i]) break;
+            [arr[parent], arr[i]] = [arr[i], arr[parent]];
+            i = parent;
         }
     }
 
-    size() {
-        return this.heap.length;
-    }
-}
-
-function mincost(arr) {
-    const heap = new MinHeap();
-    for (let num of arr) {
-        heap.insert(num);
-    }
-
+    // Build initial min-heap
+    buildMinHeap(arr);
     let totalCost = 0;
 
-    while (heap.size() > 1) {
-        let first = heap.extractMin();
-        let second = heap.extractMin();
+    while (arr.length > 1) {
+        let first = extractMin(arr);
+        let second = extractMin(arr);
         let cost = first + second;
         totalCost += cost;
-        heap.insert(cost);
+        insertHeap(arr, cost);
     }
 
     return totalCost;
